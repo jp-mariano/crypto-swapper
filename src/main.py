@@ -21,24 +21,38 @@ print("Connection to Web3 is a success!")
 wallet_address = config["WALLET_ADDRESS"]
 private_key = config["PRIVATE_KEY"]
 
-# Native token balance
+chain_id = web3.eth.chain_id
+wallet_nonce = web3.eth.getTransactionCount(wallet_address)
+
+# Native token balance and gas fee check
 balance = web3.eth.get_balance(wallet_address)
 readable_balance = web3.fromWei(balance, "ether")
-
-
-# Gas fee check
 assert readable_balance > 0.5, "Please top up your wallet's native token balance."
 
-# Initializing the pool contract
-# axlUSDC/USDC Pool in Polygon Curve.fi
-pool_address = config["CURVE_POOL_CONTRACT"]
 
-# Opening the abi json file
+# Initializing the pool contract
+# Opening the pool abi json file
 with open("abis/curve_axlusdc_usdc_abi.json", "r") as file1:
 	abi_pool = json.load(file1)
+
+# axlUSDC/USDC Pool in Polygon Curve.fi
+pool_address = config["CURVE_POOL_CONTRACT"]
 
 pool = web3.eth.contract(address=pool_address, abi=abi_pool)
 print(f"Connection to { pool.functions.name().call() } is a success!")
 
-# Decimals used in the pool
-decimals = pool.functions.decimals().call()
+
+# Opening the erc20 abi json file
+with open("abis/erc20_abi.json", "r") as file2:
+	abi_erc20 = json.load(file2)
+
+# Initializing the USDC contract
+usdc_address = config["USDC_CONTRACT"]
+usdc = web3.eth.contract(address=usdc_address, abi=abi_erc20)
+
+# Checking USDC balance
+usdc_decimals = usdc.functions.decimals().call()
+usdc_balance = usdc.functions.balanceOf(wallet_address).call()
+readable_usdc_balance = usdc_balance / 10 ** usdc_decimals
+print(f"USDC Balance: { readable_usdc_balance }")
+assert readable_usdc_balance > 0, "Not enough USDC tokens to swap."
