@@ -80,9 +80,15 @@ while readable_swap_amount <= 0:
 # Converting readable_amount into uint256 format
 amount_to_swap = int(readable_swap_amount * 10 ** usdc_decimals)
 
+# Fetching the index value for the coins to swap
+coin_index_zero = pool.functions.coins(0).call()
+if coin_index_zero == axlusdc_address:
+	axlusdc_coin_index = 0
+	usdc_coin_index = 1
+
 # Running the `get_dy()` function of the pool contract
 # To determine how much we would receive for the amount we'll swap
-# USDC is at position [1] while axlUSDC is at position [0]
-dy = pool.functions.get_dy(1, 0, amount_to_swap).call()
+# 1st argument is for the coin to send, 2nd is for the coin to receive, lastly is the amount to swap in atomic form
+dy = pool.functions.get_dy(usdc_coin_index, axlusdc_coin_index, amount_to_swap).call()
 readable_dy = dy / 10 ** axlusdc_decimals
 print(f"Swapping { readable_swap_amount } USDC to axlUSDC, we would receive at least { readable_dy } in axlUSDC.")
