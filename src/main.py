@@ -56,3 +56,10 @@ usdc_balance = usdc.functions.balanceOf(wallet_address).call()
 readable_usdc_balance = usdc_balance / 10 ** usdc_decimals
 print(f"USDC Balance: { readable_usdc_balance }")
 assert readable_usdc_balance > 0, "Not enough USDC tokens to swap."
+
+# Asking for user's input on amount to swap
+readable_swap_amount = float(input("Amount to Swap: "))
+
+# Converting readable_amount into uint256 format
+amount_to_swap = int(readable_swap_amount * 10 ** usdc_decimals)
+print(f"Amount to swap was { amount_to_swap }")
