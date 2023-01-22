@@ -50,6 +50,13 @@ with open("abis/erc20_abi.json", "r") as file2:
 usdc_address = config["USDC_CONTRACT"]
 usdc = web3.eth.contract(address=usdc_address, abi=abi_erc20)
 
+# Initializing the axlUSDC contract
+axlusdc_address = config["AXLUSDC_CONTRACT"]
+axlusdc = web3.eth.contract(address=axlusdc_address, abi=abi_erc20)
+
+# Fetching number of decimals for axlUSDC
+axlusdc_decimals = axlusdc.functions.decimals().call()
+
 # Checking USDC balance
 usdc_decimals = usdc.functions.decimals().call()
 usdc_balance = usdc.functions.balanceOf(wallet_address).call()
@@ -77,4 +84,5 @@ amount_to_swap = int(readable_swap_amount * 10 ** usdc_decimals)
 # To determine how much we would receive for the amount we'll swap
 # USDC is at position [1] while axlUSDC is at position [0]
 dy = pool.functions.get_dy(1, 0, amount_to_swap).call()
-print(f"Swapping { readable_swap_amount } USDC to axlUSDC, we would receive at least { dy } in axlUSDC.")
+readable_dy = dy / 10 ** axlusdc_decimals
+print(f"Swapping { readable_swap_amount } USDC to axlUSDC, we would receive at least { readable_dy } in axlUSDC.")
