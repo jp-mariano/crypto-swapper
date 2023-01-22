@@ -9,11 +9,13 @@ Do this:
 
 from settings import config # contains our env variables
 from web3 import Web3, HTTPProvider
+from web3.middleware import geth_poa_middleware
 import json
 
 # Initializing the provider and connecting to the chain
 provider = HTTPProvider(config["RPC_URL"])
 web3 = Web3(provider)
+web3.middleware_onion.inject(geth_poa_middleware, layer=0) # needed if not connecting to Ethereum mainnet
 assert web3.isConnected(), "Failed to connect to Web3."
 print("Connection to Web3 is a success!")
 
@@ -22,7 +24,7 @@ wallet_address = config["WALLET_ADDRESS"]
 private_key = config["PRIVATE_KEY"]
 
 chain_id = web3.eth.chain_id
-wallet_nonce = web3.eth.getTransactionCount(wallet_address)
+nonce = web3.eth.getTransactionCount(wallet_address)
 
 # Native token balance and gas fee check
 balance = web3.eth.get_balance(wallet_address)
@@ -89,6 +91,14 @@ if coin_index_zero == axlusdc_address:
 # Running the `get_dy()` function of the pool contract
 # To determine how much we would receive for the amount we'll swap
 # 1st argument is for the coin to send, 2nd is for the coin to receive, lastly is the amount to swap in atomic form
-dy = pool.functions.get_dy(usdc_coin_index, axlusdc_coin_index, amount_to_swap).call()
-readable_dy = dy / 10 ** axlusdc_decimals
-print(f"Swapping { readable_swap_amount } USDC to axlUSDC, we would receive at least { readable_dy } in axlUSDC.")
+min_amount_to_receive = pool.functions.get_dy(usdc_coin_index, axlusdc_coin_index, amount_to_swap).call()
+readable_min_amount_to_receive = min_amount_to_receive / 10 ** axlusdc_decimals
+print(f"Swapping { readable_swap_amount } USDC to axlUSDC, we would receive at least { readable_min_amount_to_receive } in axlUSDC.")
+
+# Let the swapping begin!
+# Calling the exchange() function and creating the transaction
+transaction = pool.functions.exchange(usdc_coin_index, axlusdc_coin_index, amount_to_swap, min_amount_to_receive).buildTransaction({ "chainId": chain_id, "from": wallet_address, "nonce": nonce, "gas": 500000 })
+print(transaction)
+# Signing the transaction
+# signed_tx = web3.eth.sign_transaction(tx)
+# print(vars(signed_tx))
