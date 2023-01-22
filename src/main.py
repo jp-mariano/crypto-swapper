@@ -96,9 +96,8 @@ readable_min_amount_to_receive = min_amount_to_receive / 10 ** axlusdc_decimals
 print(f"Swapping { readable_swap_amount } USDC to axlUSDC, we would receive at least { readable_min_amount_to_receive } in axlUSDC.")
 
 # Let the swapping begin!
-# Calling the exchange() function and creating the transaction
-transaction = pool.functions.exchange(usdc_coin_index, axlusdc_coin_index, amount_to_swap, min_amount_to_receive).buildTransaction({ "chainId": chain_id, "from": wallet_address, "nonce": nonce, "gas": 500000 })
-print(transaction)
+# Calling the exchange() function and building the transaction
+transaction = pool.functions.exchange(usdc_coin_index, axlusdc_coin_index, amount_to_swap, min_amount_to_receive).buildTransaction({ "chainId": chain_id, "from": wallet_address, "nonce": nonce })
+
 # Signing the transaction
-# signed_tx = web3.eth.sign_transaction(tx)
-# print(vars(signed_tx))
+signed_transaction = web3.eth.account.sign_transaction(transaction, private_key=private_key)
