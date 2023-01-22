@@ -101,3 +101,19 @@ transaction = pool.functions.exchange(usdc_coin_index, axlusdc_coin_index, amoun
 
 # Signing the transaction
 signed_transaction = web3.eth.account.sign_transaction(transaction, private_key=private_key)
+
+try:
+	# Send the signed transaction
+	sent_transaction = web3.eth.send_raw_transaction(signed_transaction.rawTransaction)
+
+	# Waiting for transaction receipt
+	receipt = web3.eth.wait_for_transaction_receipt(sent_transaction)
+	print(f"Swap Transaction Hash: { receipt }")
+except Exception as e:
+	print(e)
+
+# Check output token's balance after swapping
+axlusdc_balance = axlusdc.functions.balanceOf(wallet_address).call()
+readable_axlusdc_balance = axlusdc_balance / 10 ** axlusdc_decimals
+print(f"axlUSDC Balance: { readable_axlusdc_balance }")
+print("fin.")
