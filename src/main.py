@@ -72,4 +72,9 @@ while readable_swap_amount <= 0:
 
 # Converting readable_amount into uint256 format
 amount_to_swap = int(readable_swap_amount * 10 ** usdc_decimals)
-print(f"Amount to swap was { amount_to_swap }")
+
+# Running the `get_dy()` function of the pool contract
+# To determine how much we would receive for the amount we'll swap
+# USDC is at position [1] while axlUSDC is at position [0]
+dy = pool.functions.get_dy(1, 0, amount_to_swap).call()
+print(f"Swapping { readable_swap_amount } USDC to axlUSDC, we would receive at least { dy } in axlUSDC.")
