@@ -58,7 +58,17 @@ print(f"USDC Balance: { readable_usdc_balance }")
 assert readable_usdc_balance > 0, "Not enough USDC tokens to swap."
 
 # Asking for user's input on amount to swap
-readable_swap_amount = float(input("Amount to Swap: "))
+# Input can not be zero or less than zero
+readable_swap_amount = 0
+while readable_swap_amount <= 0:
+	try:
+		readable_swap_amount = float(input("Amount to Swap: "))
+		if readable_swap_amount <= 0:
+			raise Exception("Please use numbers greater than 0.")
+	except ValueError:
+		print("Invalid input, please use numbers greater than 0.")
+	except Exception as input_error:
+		print(input_error)
 
 # Converting readable_amount into uint256 format
 amount_to_swap = int(readable_swap_amount * 10 ** usdc_decimals)
