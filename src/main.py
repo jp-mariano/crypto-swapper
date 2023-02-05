@@ -11,6 +11,7 @@ from settings import config # contains our env variables
 from web3 import Web3, HTTPProvider
 from web3.middleware import geth_poa_middleware
 import json
+import time
 
 # Initializing the provider and connecting to the chain
 provider = HTTPProvider(config["RPC_URL"])
@@ -113,6 +114,21 @@ try:
 	for key, value in receipt.items():
 		if key == "transactionHash":
 			print(f"Swap Transaction Hash: { web3.toHex(value) }")
+
+			# Set a 10s countdown timer before checking the output balance
+			def countdown(t):
+				print("Counting down...")
+
+				while t:
+					mins, secs = divmod(t, 60)
+					timer = "{:02d}:{:02d}".format(mins, secs)
+					print(timer, end="\r")
+					time.sleep(1)
+					t -= 1
+
+				print("Done! Now checking for output balance.")
+
+			countdown(10)
 except Exception as e:
 	print(e)
 
