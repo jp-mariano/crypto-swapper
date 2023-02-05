@@ -108,7 +108,11 @@ try:
 
 	# Waiting for transaction receipt
 	receipt = web3.eth.wait_for_transaction_receipt(sent_transaction)
-	print(f"Swap Transaction Hash: { receipt }")
+
+	# Looping through the AttributeDict and decoding hex tx hash to string
+	for key, value in receipt.items():
+		if key == "transactionHash":
+			print(f"Swap Transaction Hash: { web3.toHex(value) }")
 except Exception as e:
 	print(e)
 
